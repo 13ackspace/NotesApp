@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:NotesApp"
+             x:Class="NotesApp.MainPage"
+             BackgroundColor="#11110F"
+             NavigationPage.HasNavigationBar="False"
+>
+
+    <ContentPage.BindingContext>
+        <local:NoteItemViewModel/>
+    </ContentPage.BindingContext>
+
+    <FlexLayout>
+        
+        <ListView ItemsSource="{Binding NoteItems}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <Label Text="{Binding Text}"/>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        
+        <ImageButton 
+            Source="CreateNewNote.png" 
+            HeightRequest="50" 
+            WidthRequest="140" 
+            CornerRadius="10" 
+            Margin="20" 
+            FlexLayout.AlignSelf="End" 
+            BackgroundColor="#DED614"  
+            Command="{Binding CreateNewNoteCommand}"
+        />
+    </FlexLayout>
+</ContentPage>
