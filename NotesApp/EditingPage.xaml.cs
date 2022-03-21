@@ -8,25 +8,71 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using NotesApp;
 using System.Collections.ObjectModel;
+using MvvmHelpers;
+using MvvmHelpers.Commands;
 
 namespace NotesApp
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class EditingPage : ContentPage
     {
+     
         public EditingPage()
         {
             InitializeComponent();
+
+            SaveNoteCommand = new AsyncCommand(SaveNote);
+
+            EdtingPageEntryField.BindingContext = this;
+
         }
 
-        protected override void OnAppearing()
+        public EditingPage(NoteItem noteItem)
         {
-            base.OnAppearing();
+            InitializeComponent();
+
+            SaveNoteCommand = new AsyncCommand(SaveNote);
+
+            NoteItemForEditing = new NoteItem();
+            NoteItemForEditing = noteItem;
+            Text = NoteItemForEditing.Text;
+
+            EdtingPageEntryField.BindingContext = this;
+
+          
+
         }
-        async void OnPreviousPageButtonClicked(object sender, EventArgs e)
+
+
+        private NoteItem NoteItemForEditing { get; set;}
+
+
+
+        private string text;
+        public string Text
         {
-            
-            await Navigation.PopAsync();
+            get { return text; }
+            set
+            {
+                text = value;
+
+            }
         }
+
+
+        public AsyncCommand SaveNoteCommand { get; }
+        async Task SaveNote()
+        {
+            if (NoteItemForEditing==null)
+                await Service.AddNoteToDB(Text);
+            else
+            {
+                NoteItemForEditing.Text = Text;
+                Console.WriteLine(await Service.GetNoteByID(NoteItemForEditing.Id));
+                await Service.UpdateNoteInDB(NoteItemForEditing);
+            }
+
+        }
+
     }
 }

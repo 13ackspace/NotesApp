@@ -136,4 +136,10 @@
   <ItemGroup>
     <BundleResource Include="Resources\CreateNewNote.png" />
   </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\RemoveIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\EditingIcon.png" />
+  </ItemGroup>
 </Project>

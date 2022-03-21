@@ -4,63 +4,89 @@ using System.Text;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Xamarin.Forms;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using MvvmHelpers.Commands;
+using MvvmHelpers;
+using System.Linq;
 
 namespace NotesApp
 {
-    public class NoteItemViewModel
+
+    
+
+    public class NoteItemViewModel : INotifyPropertyChanged
     {
-        private ObservableCollection<NoteItem> noteItems = new ObservableCollection<NoteItem>
-                {
-                    new NoteItem("Make homework")
-                };
-        public ObservableCollection<NoteItem> NoteItems
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            get { return noteItems; }
-            set { noteItems = value; }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        private bool isRefreshing;
+        public bool IsRefreshing
+        {
+            get { return isRefreshing; }
+            set 
+            { 
+                isRefreshing = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableRangeCollection<NoteItem> NoteItems { get; set; }
 
 
         public NoteItemViewModel() 
         {
+            NoteItems = new ObservableRangeCollection<NoteItem>();
+            OpenNoteForEditingCommand = new AsyncCommand<NoteItem>(OpenNoteForEditing);
+            CreateNewNoteCommand = new AsyncCommand(CreateNewNote);
+            RemoveNoteCommand = new AsyncCommand<NoteItem>(RemoveNote);
+            RefreshCommand = new AsyncCommand(Refresh);
+            IsRefreshing = false;
         }
 
-        //Navigation to a editing page
-        public ICommand CreateNewNoteCommand => new Command(CreateNewNote);
-        void CreateNewNote()
+        public AsyncCommand<NoteItem> OpenNoteForEditingCommand { get; }
+        async Task OpenNoteForEditing(NoteItem noteItem)
         {
-            NoteItems.Add(new NoteItem("default"));
-            foreach (NoteItem item in NoteItems)
-            {
-                Console.WriteLine(item.Text);
-            }
-            Console.WriteLine(NoteItems.Count);
+            
+            var editingPage = new EditingPage(noteItem);
+            await Application.Current.MainPage.Navigation.PushAsync(editingPage);
+        }
+
+
+
+        public AsyncCommand CreateNewNoteCommand { get; }
+        async Task CreateNewNote()
+        {
             var editingPage = new EditingPage();
-            var noteItem = new NoteItem(NoteItems[NoteItems.Count - 1].Text);
-            editingPage.BindingContext = noteItem; 
-            Application.Current.MainPage.Navigation.PushAsync(editingPage);
+            await Application.Current.MainPage.Navigation.PushAsync(editingPage);
         }
 
-        //Creation of a new note inside the editing page
-
-        private string newNoteInputValue;
-        public string NewNoteInputValue
+        public AsyncCommand<NoteItem> RemoveNoteCommand { get; }
+        async Task RemoveNote(NoteItem NoteItemBeingRemoved)
         {
-            get { return newNoteInputValue; }
-            set { newNoteInputValue = value; }
-        }
+            await Service.RemoveNoteFromDB(NoteItemBeingRemoved.Id);
+            await Refresh();
 
-        public ICommand SaveNewNoteCommand => new Command(SaveNewNote);
-        void SaveNewNote()
+        }
+       
+        public AsyncCommand RefreshCommand { get; }
+        public async Task Refresh()
         {
-            foreach (NoteItem item in NoteItems)
-            {
-                Console.WriteLine(item.Text);
-            }
-            NoteItems[NoteItems.Count].Text = NewNoteInputValue;
-        }
+            IsRefreshing = true;
 
-        
+            NoteItems.Clear();
+            var NoteItemsBeingRefreshed = await Service.GetNotesFromDB();
+            NoteItems.AddRange(NoteItemsBeingRefreshed);
+
+            IsRefreshing = false;
+
+        }
         
     }
 }

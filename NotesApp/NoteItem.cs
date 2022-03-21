@@ -1,36 +1,42 @@
-﻿using System;
+﻿using SQLite;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace NotesApp
 {
-    public class NoteItem
+    public class NoteItem : INotifyPropertyChanged
     {
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         private string text;
         public string Text 
         { 
             get { return text; } 
-            set { text = value; } 
+            set 
+            { 
+                if(text != value) 
+                { 
+                    text = value; 
+                    NotifyPropertyChanged();
+                }
+            } 
         }
-
-
-        private static int count = 0;
-        public static int Count
-        {
-            get { return count; }
-            set { count = value; }
-        }
-
 
         private int id;
+        [PrimaryKey, AutoIncrement]
         public int Id { get { return id; } set { id = value; } }    
 
-        public NoteItem(string Text) 
-        {
-           
-            this.Text = Text;
-            Count++;
-            Id = Count;
+        public NoteItem()
+        { 
             
         }
     }

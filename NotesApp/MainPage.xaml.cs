@@ -14,6 +14,20 @@ namespace NotesApp
         public MainPage()
         {
             InitializeComponent();
+            
+        }
+
+        protected override async void OnAppearing()
+        {
+            
+            base.OnAppearing();
+        }
+
+        
+        async void OpenEditingPage(object sender, EventArgs e)
+        {
+            var editingPage = new EditingPage();
+            await Application.Current.MainPage.Navigation.PushAsync(editingPage);
         }
     }
 }

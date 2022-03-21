@@ -1,34 +1,63 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:NotesApp"
              x:Class="NotesApp.MainPage"
+             xmlns:local="clr-namespace:NotesApp"
              BackgroundColor="#11110F"
              NavigationPage.HasNavigationBar="False"
 >
-
+    
     <ContentPage.BindingContext>
         <local:NoteItemViewModel/>
     </ContentPage.BindingContext>
 
-    <FlexLayout>
-        
-        <ListView ItemsSource="{Binding NoteItems}">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <ViewCell>
-                        <Label Text="{Binding Text}"/>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-        
+    
+
+    <FlexLayout
+         Direction="Column"  
+    >
+        <RefreshView IsRefreshing="{Binding IsRefreshing}"
+             Command="{Binding RefreshCommand}"
+        >
+
+            <ListView 
+                x:Name="NoteItemsList" 
+                ItemsSource="{Binding NoteItems}" 
+                Margin="0"
+                FlexLayout.AlignSelf="Start"
+            >
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell >
+                            <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center" Margin="20,0">
+                                <Label 
+                                    Text="{Binding Text}"
+                                />
+                                <ImageButton
+                                    Source="EditingIcon.png"
+                                    Command="{Binding Path=BindingContext.OpenNoteForEditingCommand, Source={x:Reference NoteItemsList}}"
+                                    CommandParameter="{Binding .}"
+                                    Scale="0.5"
+                                    
+                                />
+                                <ImageButton
+                                    Source="RemoveIcon.png"
+                                    Command="{Binding Path=BindingContext.RemoveNoteCommand, Source={x:Reference NoteItemsList}}"
+                                    CommandParameter="{Binding .}"
+                                   
+                                />
+                            </FlexLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </RefreshView>
         <ImageButton 
             Source="CreateNewNote.png" 
-            HeightRequest="50" 
-            WidthRequest="140" 
+            HeightRequest="140" 
+            WidthRequest="50" 
             CornerRadius="10" 
-            Margin="20" 
+            Margin="20"
             FlexLayout.AlignSelf="End" 
             BackgroundColor="#DED614"  
             Command="{Binding CreateNewNoteCommand}"
