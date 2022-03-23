@@ -43,12 +43,19 @@ namespace NotesApp
         public NoteItemViewModel() 
         {
             NoteItems = new ObservableRangeCollection<NoteItem>();
+
             OpenNoteForEditingCommand = new AsyncCommand<NoteItem>(OpenNoteForEditing);
             CreateNewNoteCommand = new AsyncCommand(CreateNewNote);
             RemoveNoteCommand = new AsyncCommand<NoteItem>(RemoveNote);
             RefreshCommand = new AsyncCommand(Refresh);
+
             IsRefreshing = false;
+
+            Refresh();
         }
+
+       
+
 
         public AsyncCommand<NoteItem> OpenNoteForEditingCommand { get; }
         async Task OpenNoteForEditing(NoteItem noteItem)
@@ -63,6 +70,8 @@ namespace NotesApp
         public AsyncCommand CreateNewNoteCommand { get; }
         async Task CreateNewNote()
         {
+
+
             var editingPage = new EditingPage();
             await Application.Current.MainPage.Navigation.PushAsync(editingPage);
         }
@@ -78,7 +87,6 @@ namespace NotesApp
         public AsyncCommand RefreshCommand { get; }
         public async Task Refresh()
         {
-            IsRefreshing = true;
 
             NoteItems.Clear();
             var NoteItemsBeingRefreshed = await Service.GetNotesFromDB();

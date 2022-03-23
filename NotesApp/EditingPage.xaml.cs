@@ -39,13 +39,9 @@ namespace NotesApp
 
             EdtingPageEntryField.BindingContext = this;
 
-          
-
         }
 
-
         private NoteItem NoteItemForEditing { get; set;}
-
 
 
         private string text;
@@ -58,7 +54,6 @@ namespace NotesApp
 
             }
         }
-
 
         public AsyncCommand SaveNoteCommand { get; }
         async Task SaveNote()
